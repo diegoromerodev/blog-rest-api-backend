@@ -1,12 +1,10 @@
 const router = require("express").Router();
+const userController = require("../controllers/user");
+const User = require("../models/user");
 
-router.get("/", function (req, res, next) {
-  res.json("NOT IMPLEMENT GET ALL USERS");
-});
+router.get("/", userController.user_all_get);
 
-router.post("/", function (req, res, next) {
-  res.json("NOT IMPLEMENT POST NEW USER");
-});
+router.post("/", userController.user_create_post);
 
 router.get("/:userId", function (req, res, next) {
   res.json("NOT IMPLEMENT GET SPECIFIC USER " + req.params.userId);
