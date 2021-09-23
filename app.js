@@ -4,6 +4,8 @@ const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const mongoose = require("mongoose");
+const passport = require("passport");
+require("./auth/passport");
 require("dotenv").config();
 
 const indexRouter = require("./routes/index");
@@ -17,6 +19,7 @@ mongoose.connect(process.env.database, {
 
 mongoose.connection.on("error", console.error);
 
+app.use(passport.initialize());
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

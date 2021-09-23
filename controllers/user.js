@@ -1,6 +1,9 @@
 const User = require("../models/user");
 const { body, validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
+const censorEmail = require("../lib/censorEmail");
+const passport = require("passport");
+const jwtLib = require("jsonwebtoken");
 require("dotenv").config();
 
 exports.user_all_get = (req, res, next) => {
@@ -10,16 +13,7 @@ exports.user_all_get = (req, res, next) => {
       if (err) return next(err);
       if (!users) return res.json("NO USERS");
       const usersCopy = [...users];
-      const censoredEmails = usersCopy.map((user) => {
-        // CENSOR EMAILS FOR PRIVACY
-        const emailSplit = user.email.split("@");
-        let username = emailSplit[0].split("");
-        username.splice(1, 6, ["..."]);
-        username = username.join("");
-        user.email = username + "@" + emailSplit[1];
-        return user;
-      });
-      res.json(censoredEmails);
+      res.json(usersCopy.map((user) => censorEmail(user._doc)));
     });
 };
 
@@ -52,7 +46,7 @@ exports.user_create_post = [
     new User({
       email: req.body.email,
       password: hashedPass,
-      first_name: req.body.password,
+      first_name: req.body.first_name,
       last_name: req.body.last_name,
     }).save((err, data) => {
       if (err) return next(err);
@@ -60,3 +54,22 @@ exports.user_create_post = [
     });
   },
 ];
+
+exports.user_get = (req, res, next) => {
+  User.findById(req.params.userId)
+    .select("-password")
+    .exec((err, user) => {
+      if (err) return next(err);
+      if (!user) return next(400);
+      const userCopy = Object.assign({}, user);
+      return res.json(censorEmail(userCopy._doc));
+    });
+};
+
+exports.login_post = (req, res, next) => {
+  passport.authenticate("local", { session: false }, (err, user) => {
+    if (err) return next(err);
+    if (!user) return res.status(400).json(user);
+    res.json(jwtLib.sign(user._doc, process.env.secret_key));
+  })(req, res, next);
+};

@@ -1,23 +1,14 @@
 const router = require("express").Router();
+const postController = require("../controllers/post");
 
-router.get("/", function (req, res, next) {
-  res.json("NOT IMPLEMENTED GET ALL POSTS");
-});
-router.post("/", function (req, res, next) {
-  res.json("NOT IMPLEMENTED POST NEW POSTS");
-});
+router.get("/", postController.posts_get);
+router.post("/", postController.posts_post);
 
-router.get("/:postId", function (req, res, next) {
-  res.json("NOT IMPLEMENTED GET ONE POST " + req.params.postId);
-});
+router.get("/:postId", postController.single_post_get);
 
-router.put("/:postId", function (req, res, next) {
-  res.json("NOT IMPLEMENTED UPDATE ONE POST " + req.params.postId);
-});
+router.put("/:postId", postController.single_post_put);
 
-router.delete("/:postId", function (req, res, next) {
-  res.json("NOT IMPLEMENTED DELETE ONE POST " + req.params.postId);
-});
+router.delete("/:postId", postController.single_post_delete);
 
 router.get("/:postId/comments", function (req, res, next) {
   res.json("NOT IMPLEMENTED GET ALL COMMENTS FROM POST " + req.params.postId);
