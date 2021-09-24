@@ -1,6 +1,7 @@
 const { validationResult, body } = require("express-validator");
 const Post = require("../models/post");
 const passport = require("passport");
+const isImageURL = require("image-url-validator").default;
 
 exports.posts_get = (req, res, next) => {
   Post.find()
@@ -23,6 +24,13 @@ exports.single_post_get = (req, res, next) => {
 
 exports.posts_post = [
   passport.authenticate("jwt", { session: false }),
+  body("thumbnail", "Valid image link is expected for thumbnail").custom(
+    (value) => {
+      return isImageURL(value).then((isImage) => {
+        if (!isImage) return Promise.reject(new Error("Invalid link"));
+      });
+    }
+  ),
   body("title", "Title is required").trim().isLength({ min: 1 }).escape(),
   body("text", "Text is required").trim().isLength({ min: 1 }).escape(),
   body("readable", "Readability must be specified")
@@ -42,13 +50,27 @@ exports.posts_post = [
       readable: req.body.readable === "true",
     }).save((err, doc) => {
       if (err) return next(err);
-      res.json(doc);
+      try {
+        const copy = { ...doc._doc };
+        copy.author.email = "*************";
+        copy.author.password = "*************";
+        res.json(copy);
+      } catch (error) {
+        next(error);
+      }
     });
   },
 ];
 
 exports.single_post_put = [
   passport.authenticate("jwt", { session: false }),
+  body("thumbnail", "Valid image link is expected for thumbnail").custom(
+    (value) => {
+      return isImageURL(value).then((isImage) => {
+        if (!isImage) return Promise.reject(new Error("Invalid link"));
+      });
+    }
+  ),
   body("title", "Title is required").trim().isLength({ min: 1 }).escape(),
   body("text", "Text is required").trim().isLength({ min: 1 }).escape(),
   body("readable", "Readability must be specified")
@@ -68,8 +90,14 @@ exports.single_post_put = [
       readable: req.body.readable === "true",
     };
     Post.findByIdAndUpdate(req.params.postId, postUpdates, (err, doc) => {
-      if (err) return next(err);
-      return res.json(doc);
+      try {
+        const copy = { ...doc._doc };
+        copy.author.email = "*************";
+        copy.author.password = "*************";
+        res.json(copy);
+      } catch (error) {
+        next(error);
+      }
     });
   },
 ];

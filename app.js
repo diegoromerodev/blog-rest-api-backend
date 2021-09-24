@@ -7,6 +7,7 @@ const mongoose = require("mongoose");
 const passport = require("passport");
 require("./auth/passport");
 require("dotenv").config();
+const cors = require("cors");
 
 const indexRouter = require("./routes/index");
 
@@ -19,6 +20,7 @@ mongoose.connect(process.env.database, {
 
 mongoose.connection.on("error", console.error);
 
+app.use(cors());
 app.use(passport.initialize());
 app.use(logger("dev"));
 app.use(express.json());
@@ -41,7 +43,7 @@ app.use(function (err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500);
-  res.render("error");
+  res.json("ERROR OR BAD REQUEST");
 });
 
 module.exports = app;

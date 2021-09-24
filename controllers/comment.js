@@ -3,11 +3,24 @@ const Post = require("../models/post");
 const Comment = require("../models/comment");
 
 exports.comments_get = (req, res, next) => {
-  Comment.find().exec((err, comments) => {
-    if (err) return next(err);
+  Comment.find()
+    .where("post")
+    .equals(req.params.postId)
+    .exec((err, comments) => {
+      if (err) return next(err);
+      return res.json(comments);
+    });
+};
 
-    return res.json(comments);
-  });
+exports.single_comment_get = (req, res, next) => {
+  Comment.findById(req.params.commentId)
+    .where("post")
+    .equals(req.params.postId)
+    .exec((err, comment) => {
+      if (err) return next(err);
+      if (!comment) return res.json("NO COMMENT FOUND");
+      return res.json(comment);
+    });
 };
 
 exports.comments_post = [
@@ -20,6 +33,7 @@ exports.comments_post = [
     }
     // VALIDATION PASSED
     Post.findById(req.params.postId).exec((err, post) => {
+      if (!post) return res.status(404).json("POST NOT FOUND");
       new Comment({
         post,
         author: req.body.author,
