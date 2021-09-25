@@ -4,7 +4,6 @@ const bcrypt = require("bcryptjs");
 const censorEmail = require("../lib/censorEmail");
 const passport = require("passport");
 const jwtLib = require("jsonwebtoken");
-require("dotenv").config();
 
 exports.user_all_get = (req, res, next) => {
   User.find()
