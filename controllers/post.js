@@ -44,6 +44,7 @@ exports.posts_post = [
     }
     // VALIDATION PASSED
     new Post({
+      thumbnail: req.body.thumbnail,
       author: req.user,
       title: req.body.title,
       text: req.body.text,
@@ -52,8 +53,8 @@ exports.posts_post = [
       if (err) return next(err);
       try {
         const copy = { ...doc._doc };
-        copy.author.email = "*************";
-        copy.author.password = "*************";
+        delete copy.author._doc.email;
+        delete copy.author._doc.password;
         res.json(copy);
       } catch (error) {
         next(error);
@@ -80,10 +81,12 @@ exports.single_post_put = [
   (req, res, next) => {
     const valErrors = validationResult(req);
     if (!valErrors.isEmpty() || !req.user) {
+      console.log(req.body);
       return res.status(400).json(valErrors);
     }
     // VALIDATION PASSED
     const postUpdates = {
+      thumbnail: req.body.thumbnail,
       author: req.user,
       title: req.body.title,
       text: req.body.text,
@@ -91,10 +94,7 @@ exports.single_post_put = [
     };
     Post.findByIdAndUpdate(req.params.postId, postUpdates, (err, doc) => {
       try {
-        const copy = { ...doc._doc };
-        copy.author.email = "*************";
-        copy.author.password = "*************";
-        res.json(copy);
+        res.json(doc._id + " WAS UPDATED SUCCESFULLY");
       } catch (error) {
         next(error);
       }

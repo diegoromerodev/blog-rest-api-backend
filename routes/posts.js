@@ -20,4 +20,13 @@ router.get(
   commentController.single_comment_get
 );
 
+router.delete(
+  "/:postId/comments/:commentId",
+  commentController.single_comment_delete
+);
+router.put(
+  "/:postId/comments/:commentId",
+  commentController.single_comment_put
+);
+
 module.exports = router;
